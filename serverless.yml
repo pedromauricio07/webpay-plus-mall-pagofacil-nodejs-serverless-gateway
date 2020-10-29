@@ -25,7 +25,7 @@ provider:
   runtime: nodejs12.x
 
 # you can overwrite defaults here
-#  stage: dev
+  stage: ${opt:stage, 'dev'}
 #  region: us-east-1
 
 # you can add statements to the Lambda function's IAM Role here
@@ -45,8 +45,23 @@ provider:
 #            - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    BASE_URL: ${file(config/config.${self:provider.stage}.json):BASE_URL}
+    TBK_API_URL: ${file(config/config.${self:provider.stage}.json):TBK_API_URL}
+    TBK_API_KEY_ID: ${file(config/config.${self:provider.stage}.json):TBK_API_KEY_ID}
+    TBK_API_SECRET: ${file(config/config.${self:provider.stage}.json):TBK_API_SECRET}
+    TBK_DEFAULT_WEBPAY_COMMERCE_MALL_CODE: ${file(config/config.${self:provider.stage}.json):TBK_DEFAULT_WEBPAY_COMMERCE_MALL_CODE}
+    TBK_DEFAULT_WEBPAY_COMMERCE_STORE_CODE: ${file(config/config.${self:provider.stage}.json):TBK_DEFAULT_WEBPAY_COMMERCE_STORE_CODE}
+    DB_HOST: ${file(config/config.${self:provider.stage}.json):DB_HOST}
+    DB_HOST_READ: ${file(config/config.${self:provider.stage}.json):DB_HOST_READ}
+    DB_USER: ${file(config/config.${self:provider.stage}.json):DB_USER}
+    DB_PASS: ${file(config/config.${self:provider.stage}.json):DB_PASS}
+    DB_PORT: ${file(config/config.${self:provider.stage}.json):DB_PORT}
+    DB_DATABASE: ${file(config/config.${self:provider.stage}.json):DB_DATABASE}
+    DYNAMO_TRXS_DETAILS: ${file(config/config.${self:provider.stage}.json):DYNAMO_TRXS_DETAILS}
+    LOGGER_DYNAMO: ${file(config/config.${self:provider.stage}.json):LOGGER_DYNAMO}
+    DYNAMO_TRXS_META: ${file(config/config.${self:provider.stage}.json):DYNAMO_TRXS_META}
+
 
 # you can add packaging information here
 #package:
@@ -58,8 +73,19 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  payTransaction:
+    handler: api/payTransaction.payTransaction
+    events:
+      - http:
+          path: payTransaction
+          method: post
+  returnUrl:
+    handler: api/returnUrl.returnUrl
+    events:
+      - http:
+          path: returnUrl
+          method: post
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -101,8 +127,39 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
+# resources:
 #  Resources:
+#    pagofacil_trxs_logs-craft:
+#      Type: AWS::DynamoDB::Table
+#      Properties:
+#        TableName: pagofacil_trxs_logs-craft
+#        AttributeDefinitions: 
+#          - AttributeName: idTrxs
+#          - AttributeType: S
+#        KeySchema:
+#          - AttributeName: idTrxs
+#          - KeyType: Hash
+#    pagofacil_trx_meta-craft:
+#      Type: AWS::DynamoDB::Table
+#      Properties:
+#        TableName: pagofacil_trx_meta-craft
+#        AttributeDefinitions: 
+#          - AttributeName: idTrxs
+#          - AttributeType: S
+#        KeySchema:
+#          - AttributeName: idTrxs
+#          - KeyType: Hash
+#    pagofacil_trxs_details-craft:
+#      Type: AWS::DynamoDB::Table
+#      Properties:
+#        TableName: pagofacil_trxs_details-craft
+#        AttributeDefinitions: 
+#          - AttributeName: idTrxs
+#          - AttributeType: S
+#        KeySchema:
+#          - AttributeName: idTrxs
+#          - KeyType: Hash
+
 #    NewResource:
 #      Type: AWS::S3::Bucket
 #      Properties:
@@ -111,3 +168,13 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+plugins:
+  - serverless-offline
+  - serverless-dynamodb-local
+
+
+custom:
+  dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
