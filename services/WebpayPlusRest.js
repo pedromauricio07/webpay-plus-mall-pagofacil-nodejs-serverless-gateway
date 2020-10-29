@@ -87,20 +87,21 @@ class WebpayplusREST extends Payment {
             }
         };
 
-        //console.log("Commit Transaction", config);
+        console.log("Commit Transaction", config);
 
 
         return new Promise(async (resolve, reject) => {
             await myAWS.logToDynamo(trxId, config, "webpayrest-commit-transaction-payload");
             axios(config)
                 .then(async (response) => {
-                    console.log("Commit Transaction DATA Response", response.data, JSON.stringify(response.data));
+                    console.log('response', response)
+                    //console.log("Commit Transaction DATA Response", response.data, JSON.stringify(response.data));
                     await myAWS.logToDynamo(trxId, response.data, "webpayrest-commit-transaction-payload-result", "SUCCESS");
                     resolve(response.data);
                 })
                 .catch(async (error) => {
-                    console.log(error);
-                    await myAWS.logToDynamo(trxId, response.data, "webpayrest-commit-transaction-payload-result", "ERROR");
+                    //console.log(error);
+                    await myAWS.logToDynamo(trxId, error, "webpayrest-commit-transaction-payload-result", "ERROR");
                     reject(error);
                 });
         })

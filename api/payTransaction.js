@@ -3,9 +3,10 @@
 const Trx = require("../models/TbkTrxs");
 const WebpayplusRest = require("../services/WebpayplusREST");
 
+const TransactionStatus = require("../helper/transactionStatus");
 
 module.exports.payTransaction = async (event, context, callback) => {
-    console.log(event);
+    //console.log(event);
     try {
         const getTrx = await Trx.getByAuthorization(event.headers.Authorization);
         //Check if result from finding the transaction from the Authorization header is not null
@@ -17,7 +18,9 @@ module.exports.payTransaction = async (event, context, callback) => {
             }
         } else {
             //CHECK if transaction is COMPLETED or not
-            if (getTrx.estado == "COMPLETADA") {
+            console.log(getTrx.estado)
+            console.log(TransactionStatus.COMPLETADA)
+            if (getTrx.estado == TransactionStatus.COMPLETADA) {
                 //Transaction already payed. Redirect to commerce             
                 callback(
                     null, {
@@ -29,13 +32,13 @@ module.exports.payTransaction = async (event, context, callback) => {
                       }
                 );
             } else {
-                console.log("Aún no completada, se procede al pago");
+                //console.log("Aún no completada, se procede al pago");
                 //Generate WEBPAYPLUS-REST object
                 const webpayplus = new WebpayplusRest();
                 const resultado = await webpayplus.initTransaction(getTrx, event.headers.Authorization);
 
                 //Store the Token related to the transaction
-                console.log('Resultado de initTransaction:', resultado);
+                //console.log('Resultado de initTransaction:', resultado);
                 await webpayplus.addMetaTrx(getTrx.id, "_webpayplus-rest", resultado.token);
                 context.succeed(webpayplus.getHtmlTransitionPage(resultado.url, resultado.token))
             }

@@ -1,6 +1,8 @@
 const myAWS = require('../helper/AWS.helper');
 const ServiciosTbk = require("./ServiciosTbk");
+const Trx = require('../models/TbkTrxs')
 
+const TransactionStatus = require("../helper/transactionStatus")
 
 class Payment {
 
@@ -33,7 +35,7 @@ class Payment {
     getMetaTrx(idTrxs, meta_key) {
         return new Promise((resolve, reject) => {
             myAWS.getMetaTrx(idTrxs, meta_key).then(result => {
-                console.log("DATA ITEM", result);
+                //console.log("DATA ITEM", result);
                 if (result.data.Item != undefined) {
                     resolve(result.data.Item);
                 } else {
@@ -54,7 +56,7 @@ class Payment {
             myAWS.addTrxDetails(idTrx, detailsTrx, this.source).then(result => {
                 resolve(result)
             }).catch(error => {
-                console.log(error);
+                //console.log(error);
                 reject(error)
             });
         })
@@ -69,7 +71,7 @@ class Payment {
     static getMetaTrxStatic(idTrxs, meta_key) {
         return new Promise((resolve, reject) => {
             myAWS.getMetaTrx(idTrxs, meta_key).then(result => {
-                console.log("DATA ITEM", result);
+                //console.log("DATA ITEM", result);
                 if (result.data.Item != undefined) {
                     resolve(result.data.Item);
                 } else {
@@ -97,9 +99,9 @@ class Payment {
         await myAWS.addTrxDetails(getTrx.id, details, this.source);
         
         return new Promise((resolve, reject) => {
-            ServiciosTbk.findById(getTrx.idServicio).then((servicio) => {
+            ServiciosTbk.getById(getTrx.idServicio).then((servicio) => {
 
-                console.log("Servicio Encontrado", servicio);
+                //console.log("Servicio Encontrado", servicio);
                 let mensaje = {
                     servicio,
                     details: details
@@ -118,7 +120,7 @@ class Payment {
                 });;
 
             }).catch((errors) => {
-                console.log("Servicio no encontrado", errors);
+                //console.log("Servicio no encontrado", errors);
                 resolve(false);
             });
         });
@@ -130,14 +132,14 @@ class Payment {
      * @param {*} getTrx 
      */
     failTrx(getTrx) {
-        getTrx.estado = "FALLIDA";
+        getTrx.estado = TransactionStatus.FALLIDA;
         getTrx.source = this.source;
 
         return new Promise((resolve, reject) => {
             getTrx.save().then(() => {
                 resolve(false);
             }).catch((errors) => {
-                console.log(errors);
+                //console.log(errors);
                 resolve(false);
             });
         })

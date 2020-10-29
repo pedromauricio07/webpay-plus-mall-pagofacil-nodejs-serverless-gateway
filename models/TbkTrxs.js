@@ -4,6 +4,8 @@ const myAuthorizators = require('../helper/authorization.helper.js');
 const myAwsHelper = require('../helper/AWS.helper');
 const db = require("../config/db");
 
+const TransactionStatus = require("../helper/transactionStatus");
+
 const sequelize = db.sequelize;
 const Sequelize = db.Sequelize;
 
@@ -65,7 +67,7 @@ const Trx = sequelize.define('tbkTrxs', {
   estado: {
     type: Sequelize.STRING(45),
     allowNull: false,
-    defaultValue: 'PENDIENTE',
+    defaultValue: TransactionStatus.PENDIENTE,
     field: 'estado'
   },
   email: {
@@ -172,12 +174,12 @@ Trx.getOrCreate = function (idServicio, idStore, idSession, currency, monto) {
           resultado.esNuevo = true;
           resolve(resultado);
         })).catch((errors) => {
-          console.log(errors)
+          //console.log(errors)
           reject(errors);
         });
       }
     }).catch((errors) => {
-      console.log(errors);
+      //console.log(errors);
       reject(errors);
     });
   })
@@ -216,7 +218,7 @@ Trx.getById = function (id) {
         resolve(false);
       }
     }).catch((errors) => {
-      console.log(errors);
+      //console.log(errors);
       reject(errors);
     });
   })
@@ -226,7 +228,7 @@ Trx.getById = function (id) {
 
 Trx.getByTokenWS = function (tokenWs) {
 
-  console.log("SE BUSCA TRX CON TOKEN", tokenWs);
+  //console.log("SE BUSCA TRX CON TOKEN", tokenWs);
 
   let getTrx = Trx.findOne({
     where: {
@@ -248,15 +250,15 @@ Trx.getByTokenWS = function (tokenWs) {
  */
 Trx.completeTrx = function (trx, source = null, codigoComercio = null, authCode = null, tokenWs = null, mensaje = {}) {
   // console.log("Servicio dentro", servicio);
-  trx.estado = "COMPLETADA";
+  trx.estado = TransactionStatus.COMPLETADA;
 
   if (source != null) trx.source = source;
   if (codigoComercio != null) trx.codigoComercio = codigoComercio;
   if (tokenWs != null) trx.tokenWs = tokenWs;
 
-  console.log("Completando Transacción", "Source :", source);
-  console.log("Código de comercio asociado a la transacción", codigoComercio);
-  console.log("Código de comercio asociado a la transacción1", trx.codigoComercio);
+  //console.log("Completando Transacción", "Source :", source);
+  //console.log("Código de comercio asociado a la transacción", codigoComercio);
+  //console.log("Código de comercio asociado a la transacción1", trx.codigoComercio);
 
   trx.authCode = authCode;
   trx.updatedAt = new Date();
@@ -269,7 +271,7 @@ Trx.completeTrx = function (trx, source = null, codigoComercio = null, authCode 
     //TODO: Publish SNS
     //myAwsHelper.publishToSNS(mensaje);
   }).catch((error) => {
-    console.log("Error al Completar la transaccion", error);
+    //console.log("Error al Completar la transaccion", error);
   });
 }
 

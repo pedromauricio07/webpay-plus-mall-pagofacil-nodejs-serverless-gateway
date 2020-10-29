@@ -162,14 +162,14 @@ const getMetaTrx = (idTrxs, meta_key) => {
 
         docClient.get(params, function (err, data) {
             if (err) { // an error occurred
-                console.log("NO SE PUDO OBTENER META TRX");
-                console.log(err, err.stack);
+                //console.log("NO SE PUDO OBTENER META TRX");
+                //console.log(err, err.stack);
                 return reject({
                     err: err
                 });
             } else {
-                console.log("META TRXS RETORNADO SIN PROBLEMAS");
-                console.log(data);
+                //console.log("META TRXS RETORNADO SIN PROBLEMAS");
+                //console.log(data);
                 return resolve({
                     data: data
                 });
@@ -200,7 +200,7 @@ const publishToSNS = (mensaje) => {
     publishTextPromise.then((data) => {
         // console.log(`Message ${params.Message} send sent to the topic ${params.TopicArn}`);
         // console.log(params.Message);
-        console.log("MessageID is " + data.MessageId);
+        //console.log("MessageID is " + data.MessageId);
     }).catch((err) => {
         console.error(err, err.stack);
     });
