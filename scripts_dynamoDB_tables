@@ -1,0 +1,17 @@
+aws dynamodb create-table ^
+--table-name pagofacil_trx_meta-craft ^
+--attribute-definitions AttributeName=idTrxs,AttributeType=S AttributeName=meta_key,AttributeType=S ^
+--key-schema AttributeName=idTrxs,KeyType=HASH AttributeName=meta_key,KeyType=RANGE ^
+--provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 ^
+--endpoint-url http://localhost:8000 ^
+--output table
+
+
+
+aws dynamodb create-table ^
+--table-name pagofacil_trxs_logs-craft ^
+--attribute-definitions AttributeName=idTrxs,AttributeType=S ^
+--key-schema AttributeName=idTrxs,KeyType=HASH ^
+--provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 ^
+--endpoint-url http://localhost:8000 ^
+--output table
